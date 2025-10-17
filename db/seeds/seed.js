@@ -1,6 +1,6 @@
 const db = require("../connection");
 const { format } = require("node-pg-format");
-const { convertTimestampToDate } = require("../seeds/utils.js");
+const { convertTimestampToDate, createLookupObject } = require("../seeds/utils.js");
 
 const seed = async ({ topicData, userData, articleData, commentData }) => {
   try {
@@ -51,28 +51,18 @@ const seed = async ({ topicData, userData, articleData, commentData }) => {
       ];
     });
     const insertArticlesQuery = format(
-      "INSERT INTO articles(title, topic, author, body, created_at, votes, article_img_url) VALUES %L",
+      "INSERT INTO articles(title, topic, author, body, created_at, votes, article_img_url) VALUES %L RETURNING article_id, title",
       articleFormattedData
     );
-    await db.query(insertArticlesQuery);
+    const insertArticlesResponse = await db.query(insertArticlesQuery);
 
-    const articleTitles = [
-      ...new Set(commentData.map((comment) => comment.article_title)),
-    ];
-    const articlesResponse = await db.query(
-      "SELECT article_id, title FROM articles WHERE title = ANY($1)",
-      [articleTitles]
-    );
+    const articlesLookup = createLookupObject(insertArticlesResponse.rows);
 
-    const titlesObj = Object.fromEntries(
-      articlesResponse.rows.map((row) => [row.title, row.article_id])
-    );
     const commentFormattedData = commentData.map((comment) => {
-      const article_id = titlesObj[comment.article_title];
       const updatedcomment = convertTimestampToDate(comment);
       return [
         updatedcomment.body,
-        article_id,
+        articlesLookup[comment.article_title],
         updatedcomment.author,
         updatedcomment.votes,
         updatedcomment.created_at,

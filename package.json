@@ -9,7 +9,9 @@
     "test": "jest --runInBand",
     "prepare": "husky install",
     "start": "node listen.js",
-    "test-seed": "jest seed.test.js"
+    "test-seed": "jest seed.test.js",
+    "test-utils": "jest ./__tests__/utils.test.js",
+    "queries": "node ./db/run-queries.js"
   },
   "repository": {
     "type": "git",
