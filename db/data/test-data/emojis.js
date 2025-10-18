@@ -1,0 +1,1 @@
+module.exports = [{ emoji: "👍" }, { emoji: "❤️" }];
