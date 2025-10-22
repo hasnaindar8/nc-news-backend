@@ -7,4 +7,13 @@ async function getAllArticles() {
   return articles;
 }
 
-module.exports = { getAllArticles };
+async function getArticleUsingId(articleId) {
+  const { rows } = await db.query(
+    `SELECT * FROM articles WHERE article_id = $1`,
+    [articleId]
+  );
+  const article = rows[0];
+  return article;
+}
+
+module.exports = { getAllArticles, getArticleUsingId };
