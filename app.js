@@ -1,4 +1,5 @@
 const { getTopics } = require("./controllers/topicsController.js");
+const { getArticles } = require("./controllers/articlesController.js");
 const express = require("express");
 const app = express();
 
@@ -9,5 +10,7 @@ app.get("/getHealth", (req, res) => {
 });
 
 app.get("/api/topics", getTopics);
+
+app.get("/api/articles", getArticles);
 
 module.exports = app;
