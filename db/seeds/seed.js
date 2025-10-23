@@ -44,7 +44,7 @@ const seed = async ({
       author VARCHAR NOT NULL REFERENCES users(username) ON DELETE CASCADE,
       body TEXT NOT NULL,
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-      votes INT DEFAULT 0,
+      votes INT DEFAULT 0 NOT NULL,
       article_img_url VARCHAR(1000)
     );`
     );
