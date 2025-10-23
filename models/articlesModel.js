@@ -21,4 +21,25 @@ async function getArticleUsingId(articleId) {
   return rows[0];
 }
 
-module.exports = { getAllArticles, getArticleUsingId };
+function getCommentsUsingArticleId(articleId) {
+  return db
+    .query(
+      `SELECT * FROM comments WHERE article_id = $1 ORDER BY created_at DESC`,
+      [articleId]
+    )
+    .then(({ rows }) => {
+      if (rows.length === 0) {
+        return Promise.reject({
+          status: 404,
+          msg: `No comment found for article_id: ${articleId}`,
+        });
+      }
+      return rows;
+    });
+}
+
+module.exports = {
+  getAllArticles,
+  getArticleUsingId,
+  getCommentsUsingArticleId,
+};

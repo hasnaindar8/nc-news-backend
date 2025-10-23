@@ -1,6 +1,7 @@
 const {
   getAllArticles,
   getArticleUsingId,
+  getCommentsUsingArticleId,
 } = require("../models/articlesModel.js");
 
 async function getArticles(req, res) {
@@ -14,4 +15,11 @@ async function getArticleById(req, res) {
   res.status(200).send({ article });
 }
 
-module.exports = { getArticles, getArticleById };
+function getCommentsByArticleId(req, res) {
+  const { article_id } = req.params;
+  return getCommentsUsingArticleId(article_id).then((comments) => {
+    res.status(200).send({ comments });
+  });
+}
+
+module.exports = { getArticles, getArticleById, getCommentsByArticleId };
