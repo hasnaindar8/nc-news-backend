@@ -12,6 +12,9 @@ exports.handlePsqlErrors = (err, req, res, next) => {
     case "23503":
       res.status(409).send({ msg: "Referenced record does not exist" });
       break;
+    case "23502":
+      res.status(400).send({ msg: "Bad Request" });
+      break;
     default:
       next(err);
   }

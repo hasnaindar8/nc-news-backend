@@ -47,9 +47,28 @@ async function addCommentAgainstArticle(articleId, requestBody) {
   return rows[0];
 }
 
+function updateArticleUsingId(articleId, requestBody) {
+  const { inc_votes } = requestBody;
+  return db
+    .query(
+      `UPDATE articles SET votes = votes + $1 WHERE article_id = $2 RETURNING *`,
+      [inc_votes, articleId]
+    )
+    .then(({ rows }) => {
+      if (rows.length === 0) {
+        return Promise.reject({
+          status: 404,
+          msg: `No article found for article_id: ${articleId}`,
+        });
+      }
+      return rows[0];
+    });
+}
+
 module.exports = {
   getAllArticles,
   getArticleUsingId,
   getCommentsUsingArticleId,
   addCommentAgainstArticle,
+  updateArticleUsingId,
 };

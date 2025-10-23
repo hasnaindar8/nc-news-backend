@@ -3,6 +3,7 @@ const {
   getArticleUsingId,
   getCommentsUsingArticleId,
   addCommentAgainstArticle,
+  updateArticleUsingId,
 } = require("../models/articlesModel.js");
 
 async function getArticles(req, res) {
@@ -30,9 +31,17 @@ async function addCommentForArticle(req, res) {
   res.status(201).send({ comment });
 }
 
+async function updateArticle(req, res) {
+  const { article_id } = req.params;
+  const requestBody = req.body;
+  const article = await updateArticleUsingId(article_id, requestBody);
+  res.status(200).send({ article });
+}
+
 module.exports = {
   getArticles,
   getArticleById,
   getCommentsByArticleId,
   addCommentForArticle,
+  updateArticle,
 };

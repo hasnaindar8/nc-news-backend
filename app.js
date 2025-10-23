@@ -4,6 +4,7 @@ const {
   getArticleById,
   getCommentsByArticleId,
   addCommentForArticle,
+  updateArticle,
 } = require("./controllers/articlesController.js");
 const { getUsers } = require("./controllers/usersController.js");
 const {
@@ -31,6 +32,8 @@ app.get("/api/articles/:article_id", getArticleById);
 app.get("/api/articles/:article_id/comments", getCommentsByArticleId);
 
 app.post("/api/articles/:article_id/comments", addCommentForArticle);
+
+app.patch("/api/articles/:article_id", updateArticle);
 
 app.use(handleCustomErrors);
 
