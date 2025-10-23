@@ -12,8 +12,13 @@ async function getArticleUsingId(articleId) {
     `SELECT * FROM articles WHERE article_id = $1`,
     [articleId]
   );
-  const article = rows[0];
-  return article;
+  if (rows.length === 0) {
+    return Promise.reject({
+      status: 404,
+      msg: `No article found for article_id: ${articleId}`,
+    });
+  }
+  return rows[0];
 }
 
 module.exports = { getAllArticles, getArticleUsingId };

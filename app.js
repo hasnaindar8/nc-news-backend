@@ -4,6 +4,11 @@ const {
   getArticleById,
 } = require("./controllers/articlesController.js");
 const { getUsers } = require("./controllers/usersController.js");
+const {
+  handleCustomErrors,
+  handlePsqlErrors,
+  handleServerErrors,
+} = require("./errorHandler.js");
 const express = require("express");
 const app = express();
 
@@ -20,5 +25,11 @@ app.get("/api/articles", getArticles);
 app.get("/api/users", getUsers);
 
 app.get("/api/articles/:article_id", getArticleById);
+
+app.use(handleCustomErrors);
+
+app.use(handlePsqlErrors);
+
+app.use(handleServerErrors);
 
 module.exports = app;
