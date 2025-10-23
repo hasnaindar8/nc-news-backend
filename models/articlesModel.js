@@ -38,8 +38,18 @@ function getCommentsUsingArticleId(articleId) {
     });
 }
 
+async function addCommentAgainstArticle(articleId, requestBody) {
+  const { username, body } = requestBody;
+  const { rows } = await db.query(
+    `INSERT INTO comments(body, article_id, author, votes, created_at) VALUES ($1, $2, $3, $4, CURRENT_TIMESTAMP) RETURNING *`,
+    [body, articleId, username, 0]
+  );
+  return rows[0];
+}
+
 module.exports = {
   getAllArticles,
   getArticleUsingId,
   getCommentsUsingArticleId,
+  addCommentAgainstArticle,
 };

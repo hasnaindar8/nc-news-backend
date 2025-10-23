@@ -2,6 +2,7 @@ const {
   getAllArticles,
   getArticleUsingId,
   getCommentsUsingArticleId,
+  addCommentAgainstArticle,
 } = require("../models/articlesModel.js");
 
 async function getArticles(req, res) {
@@ -22,4 +23,16 @@ function getCommentsByArticleId(req, res) {
   });
 }
 
-module.exports = { getArticles, getArticleById, getCommentsByArticleId };
+async function addCommentForArticle(req, res) {
+  const { article_id } = req.params;
+  const requestBody = req.body;
+  const comment = await addCommentAgainstArticle(article_id, requestBody);
+  res.status(201).send({ comment });
+}
+
+module.exports = {
+  getArticles,
+  getArticleById,
+  getCommentsByArticleId,
+  addCommentForArticle,
+};

@@ -3,6 +3,7 @@ const {
   getArticles,
   getArticleById,
   getCommentsByArticleId,
+  addCommentForArticle,
 } = require("./controllers/articlesController.js");
 const { getUsers } = require("./controllers/usersController.js");
 const {
@@ -28,6 +29,8 @@ app.get("/api/users", getUsers);
 app.get("/api/articles/:article_id", getArticleById);
 
 app.get("/api/articles/:article_id/comments", getCommentsByArticleId);
+
+app.post("/api/articles/:article_id/comments", addCommentForArticle);
 
 app.use(handleCustomErrors);
 
