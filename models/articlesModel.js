@@ -35,7 +35,18 @@ async function getAllArticles(queries) {
 
 async function getArticleUsingId(articleId) {
   const { rows } = await db.query(
-    `SELECT a.*, COUNT(c.comment_id)::INT AS comment_count FROM articles AS a JOIN comments AS c ON a.article_id = c.article_id WHERE a.article_id = $1 GROUP BY a.article_id`,
+    `SELECT a.article_id,
+       a.author,
+       a.title,
+       a.body,
+       a.topic,
+       a.created_at,
+       a.votes,
+       a.article_img_url, 
+       COUNT(c.comment_id)::INT AS comment_count 
+       FROM articles AS a LEFT JOIN comments AS c ON a.article_id = c.article_id 
+       WHERE a.article_id = $1 
+       GROUP BY a.article_id`,
     [articleId]
   );
   if (rows.length === 0) {
