@@ -1,9 +1,14 @@
 const db = require("../db/connection.js");
+const { format } = require("node-pg-format");
 
-async function getAllArticles() {
-  const { rows: articles } = await db.query(
-    `SELECT a.author, a.title, a.article_id, a.topic, a.created_at, a.votes, a.article_img_url, count(c.comment_id) AS comment_count FROM articles AS a JOIN comments AS c ON a.article_id = c.article_id GROUP BY a.article_id ORDER BY a.created_at DESC;`
+async function getAllArticles(queries) {
+  const { sort_by = "created_at", order = "desc" } = queries;
+  const query = format(
+    `SELECT a.author, a.title, a.article_id, a.topic, a.created_at, a.votes, a.article_img_url, count(c.comment_id)::INT AS comment_count FROM articles AS a LEFT JOIN comments AS c ON a.article_id = c.article_id GROUP BY a.article_id ORDER BY a.%s %s;`,
+    sort_by,
+    order
   );
+  const { rows: articles } = await db.query(query);
   return articles;
 }
 

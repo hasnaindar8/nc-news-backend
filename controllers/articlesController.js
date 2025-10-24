@@ -7,7 +7,8 @@ const {
 } = require("../models/articlesModel.js");
 
 async function getArticles(req, res) {
-  const articles = await getAllArticles();
+  const queries = req.query;
+  const articles = await getAllArticles(queries);
   res.status(200).send({ articles });
 }
 
