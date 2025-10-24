@@ -1,14 +1,35 @@
 const db = require("../db/connection.js");
-const { format } = require("node-pg-format");
 
 async function getAllArticles(queries) {
-  const { sort_by = "created_at", order = "desc" } = queries;
-  const query = format(
-    `SELECT a.author, a.title, a.article_id, a.topic, a.created_at, a.votes, a.article_img_url, count(c.comment_id)::INT AS comment_count FROM articles AS a LEFT JOIN comments AS c ON a.article_id = c.article_id GROUP BY a.article_id ORDER BY a.%s %s;`,
-    sort_by,
-    order
-  );
-  const { rows: articles } = await db.query(query);
+  const { sort_by = "created_at", order = "desc", topic } = queries;
+  const validSortColumns = [
+    "created_at",
+    "article_id",
+    "votes",
+    "comment_count",
+    "author",
+    "title",
+    "topic",
+  ];
+  const validOrderValues = ["asc", "desc"];
+
+  if (!validSortColumns.includes(sort_by)) {
+    return Promise.reject({ status: 400, msg: "Invalid sort_by query" });
+  }
+
+  if (!validOrderValues.includes(order.toLowerCase())) {
+    return Promise.reject({ status: 400, msg: "Invalid order query" });
+  }
+  const values = [];
+  let query = `SELECT a.author, a.title, a.article_id, a.topic, a.created_at, a.votes, a.article_img_url, count(c.comment_id)::INT AS comment_count FROM articles AS a LEFT JOIN comments AS c ON a.article_id = c.article_id`;
+
+  if (topic) {
+    query += ` WHERE a.topic = $1`;
+    values.push(topic);
+  }
+
+  query += ` GROUP BY a.article_id ORDER BY a.${sort_by} ${order};`;
+  const { rows: articles } = await db.query(query, values);
   return articles;
 }
 
