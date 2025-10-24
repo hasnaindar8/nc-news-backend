@@ -7,6 +7,17 @@ const seed = require("../db/seeds/seed.js");
 beforeAll(() => seed(data));
 afterAll(() => db.end());
 
+describe("Unknown Paths", () => {
+  it("responds with 404 for unknown paths", () => {
+    return request(app)
+      .get("/this-path-does-not-exist")
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Path not found");
+      });
+  });
+});
+
 describe("GET /api/topics", () => {
   it("status:200, responds with topics array of topic objects", () => {
     return request(app)
@@ -82,7 +93,7 @@ describe("GET /api/articles", () => {
   });
 });
 
-describe.only("GET /api/articles/:article_id", () => {
+describe("GET /api/articles/:article_id", () => {
   it("status:200, responds with article object", () => {
     return request(app)
       .get("/api/articles/5")
