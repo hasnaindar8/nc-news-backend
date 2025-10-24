@@ -8,7 +8,7 @@ beforeAll(() => seed(data));
 afterAll(() => db.end());
 
 describe("GET /api/topics", () => {
-  it("200: responds with topics array of topic objects", () => {
+  it("status:200, responds with topics array of topic objects", () => {
     return request(app)
       .get("/api/topics")
       .expect(200)
@@ -27,7 +27,7 @@ describe("GET /api/topics", () => {
 });
 
 describe("GET /api/users", () => {
-  it("200: responds with users array of user objects", () => {
+  it("status:200, responds with users array of user objects", () => {
     return request(app)
       .get("/api/users")
       .expect(200)
@@ -48,7 +48,7 @@ describe("GET /api/users", () => {
 });
 
 describe("GET /api/articles", () => {
-  it("200: responds with articles array of user article", () => {
+  it("status:200, responds with articles array of user article", () => {
     return request(app)
       .get("/api/articles")
       .expect(200)
@@ -78,6 +78,51 @@ describe("GET /api/articles", () => {
         expect(body["articles"]).toBeSortedBy("created_at", {
           descending: true,
         });
+      });
+  });
+});
+
+describe.only("GET /api/articles/:article_id", () => {
+  it("status:200, responds with article object", () => {
+    return request(app)
+      .get("/api/articles/5")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body).toHaveProperty("article");
+        const article = body["article"];
+        expect(article).toBeInstanceOf(Object);
+        expect(article).toHaveProperty("author");
+        expect(article).toHaveProperty("title");
+        expect(article).toHaveProperty("article_id");
+        expect(article).toHaveProperty("body");
+        expect(article).toHaveProperty("topic");
+        expect(article).toHaveProperty("created_at");
+        expect(article).toHaveProperty("votes");
+        expect(article).toHaveProperty("article_img_url");
+        expect(typeof article["author"]).toBe("string");
+        expect(typeof article["title"]).toBe("string");
+        expect(typeof article["article_id"]).toBe("number");
+        expect(typeof article["body"]).toBe("string");
+        expect(typeof article["topic"]).toBe("string");
+        expect(typeof article["created_at"]).toBe("string");
+        expect(typeof article["votes"]).toBe("number");
+        expect(typeof article["article_img_url"]).toBe("string");
+      });
+  });
+  it("status:404, responds with an error message when passed a valid article ID that does not exist", () => {
+    return request(app)
+      .get("/api/articles/15")
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("No article found for article_id: 15");
+      });
+  });
+  it("status:400, responds with an error message when passed a not valid article ID", () => {
+    return request(app)
+      .get("/api/articles/notAnID")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad Request");
       });
   });
 });
