@@ -65,14 +65,22 @@ function getCommentsUsingArticleId(articleId) {
       [articleId]
     )
     .then(({ rows }) => {
-      if (rows.length === 0) {
-        return Promise.reject({
-          status: 404,
-          msg: `No comment found for article_id: ${articleId}`,
-        });
-      }
       return rows;
     });
+}
+
+async function checkArticleExistsById(articleId) {
+  const { rows } = await db.query(
+    `SELECT article_id FROM articles WHERE article_id = $1`,
+    [articleId]
+  );
+  if (rows.length === 0) {
+    return Promise.reject({
+      status: 404,
+      msg: `No article found for article_id: ${articleId}`,
+    });
+  }
+  return rows[0];
 }
 
 async function addCommentAgainstArticle(articleId, requestBody) {
@@ -108,4 +116,5 @@ module.exports = {
   getCommentsUsingArticleId,
   addCommentAgainstArticle,
   updateArticleUsingId,
+  checkArticleExistsById,
 };

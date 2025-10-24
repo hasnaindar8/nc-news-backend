@@ -4,6 +4,7 @@ const {
   getCommentsUsingArticleId,
   addCommentAgainstArticle,
   updateArticleUsingId,
+  checkArticleExistsById,
 } = require("../models/articlesModel.js");
 
 async function getArticles(req, res) {
@@ -18,11 +19,11 @@ async function getArticleById(req, res) {
   res.status(200).send({ article });
 }
 
-function getCommentsByArticleId(req, res) {
+async function getCommentsByArticleId(req, res) {
   const { article_id } = req.params;
-  return getCommentsUsingArticleId(article_id).then((comments) => {
-    res.status(200).send({ comments });
-  });
+  await checkArticleExistsById(article_id);
+  const comments = await getCommentsUsingArticleId(article_id);
+  res.status(200).send({ comments });
 }
 
 async function addCommentForArticle(req, res) {

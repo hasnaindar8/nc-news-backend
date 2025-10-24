@@ -59,7 +59,7 @@ describe("GET /api/users", () => {
 });
 
 describe("GET /api/articles", () => {
-  it("status:200, responds with articles array of user article", () => {
+  it("status:200, responds with articles array of article object", () => {
     return request(app)
       .get("/api/articles")
       .expect(200)
@@ -120,17 +120,75 @@ describe("GET /api/articles/:article_id", () => {
         expect(typeof article["article_img_url"]).toBe("string");
       });
   });
-  it("status:404, responds with an error message when passed a valid article ID that does not exist", () => {
+  it("status:404, responds with an error message when passed a valid article_id that does not exist", () => {
     return request(app)
-      .get("/api/articles/15")
+      .get("/api/articles/9999")
       .expect(404)
       .then(({ body }) => {
-        expect(body.msg).toBe("No article found for article_id: 15");
+        expect(body.msg).toBe("No article found for article_id: 9999");
       });
   });
-  it("status:400, responds with an error message when passed a not valid article ID", () => {
+  it("status:400, responds with an error message when passed an invalid article_id type", () => {
     return request(app)
-      .get("/api/articles/notAnID")
+      .get("/api/articles/not-an-id")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad Request");
+      });
+  });
+});
+
+describe("GET /api/articles/:article_id/comments", () => {
+  it("status:200, responds with an array of comments for the given article_id ordered by created_at desc", () => {
+    const articleId = 1;
+    return request(app)
+      .get(`/api/articles/${articleId}/comments`)
+      .expect(200)
+      .then(({ body }) => {
+        expect(body).toHaveProperty("comments");
+        expect(body["comments"]).toBeInstanceOf(Array);
+        expect(body["comments"].length).toBe(11);
+        body["comments"].forEach((comment) => {
+          expect(comment).toHaveProperty("comment_id");
+          expect(comment).toHaveProperty("votes");
+          expect(comment).toHaveProperty("created_at");
+          expect(comment).toHaveProperty("author");
+          expect(comment).toHaveProperty("body");
+          expect(comment).toHaveProperty("article_id");
+          expect(typeof comment["comment_id"]).toBe("number");
+          expect(typeof comment["votes"]).toBe("number");
+          expect(typeof comment["created_at"]).toBe("string");
+          expect(typeof comment["author"]).toBe("string");
+          expect(typeof comment["body"]).toBe("string");
+          expect(typeof comment["article_id"]).toBe("number");
+          expect(comment["article_id"]).toBe(articleId);
+        });
+        expect(body["comments"]).toBeSortedBy("created_at", {
+          descending: true,
+        });
+      });
+  });
+  it("status:200, responds with an empty array if article exists but has no comments", () => {
+    return request(app)
+      .get("/api/articles/8/comments")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body).toHaveProperty("comments");
+        expect(body["comments"]).toBeInstanceOf(Array);
+        expect(body["comments"]).toEqual([]);
+      });
+  });
+  it("status:404, responds with an error message when passed a valid article_id that does not exist", () => {
+    return request(app)
+      .get("/api/articles/9999/comments")
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("No article found for article_id: 9999");
+      });
+  });
+  it("status:400, responds with an error message when passed an invalid article_id type", () => {
+    return request(app)
+      .get("/api/articles/not-an-id/comments")
       .expect(400)
       .then(({ body }) => {
         expect(body.msg).toBe("Bad Request");
