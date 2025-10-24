@@ -11,7 +11,8 @@ const {
   handleCustomErrors,
   handlePsqlErrors,
   handleServerErrors,
-} = require("./errorHandler.js");
+} = require("./controllers/errorHandlerController.js");
+const { deleteComment } = require("./controllers/commentsController.js");
 const express = require("express");
 const app = express();
 
@@ -34,6 +35,8 @@ app.get("/api/articles/:article_id/comments", getCommentsByArticleId);
 app.post("/api/articles/:article_id/comments", addCommentForArticle);
 
 app.patch("/api/articles/:article_id", updateArticle);
+
+app.delete("/api/comments/:comment_id", deleteComment);
 
 app.use(handleCustomErrors);
 
