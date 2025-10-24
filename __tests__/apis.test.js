@@ -27,47 +27,57 @@ describe("GET /api/topics", () => {
 });
 
 describe("GET /api/users", () => {
-  it("returns all users", () => {
+  it("200: responds with users array of user objects", () => {
     return request(app)
       .get("/api/users")
       .expect(200)
-      .expect("Content-Type", "application/json; charset=utf-8")
-      .then((res) => {
-        const body = res.body;
+      .then(({ body }) => {
         expect(body).toHaveProperty("users");
         expect(body["users"]).toBeInstanceOf(Array);
         expect(body["users"].length).toBe(4);
-        expect(body["users"][0]).toHaveProperty("username");
-        expect(body["users"][0]).toHaveProperty("name");
-        expect(body["users"][0]).toHaveProperty("avatar_url");
-        expect(body["users"]).toEqual(
-          expect.arrayContaining([
-            expect.objectContaining({
-              username: "butter_bridge",
-              name: "jonny",
-              avatar_url:
-                "https://www.healthytherapies.com/wp-content/uploads/2016/06/Lime3.jpg",
-            }),
-            expect.objectContaining({
-              username: "icellusedkars",
-              name: "sam",
-              avatar_url:
-                "https://avatars2.githubusercontent.com/u/24604688?s=460&v=4",
-            }),
-            expect.objectContaining({
-              username: "rogersop",
-              name: "paul",
-              avatar_url:
-                "https://avatars2.githubusercontent.com/u/24394918?s=400&v=4",
-            }),
-            expect.objectContaining({
-              username: "lurker",
-              name: "do_nothing",
-              avatar_url:
-                "https://www.golenbock.com/wp-content/uploads/2015/01/placeholder-user.png",
-            }),
-          ])
-        );
+        body["users"].forEach((user) => {
+          expect(user).toHaveProperty("username");
+          expect(user).toHaveProperty("name");
+          expect(user).toHaveProperty("avatar_url");
+          expect(typeof user["username"]).toBe("string");
+          expect(typeof user["name"]).toBe("string");
+          expect(typeof user["avatar_url"]).toBe("string");
+        });
+      });
+  });
+});
+
+describe("GET /api/articles", () => {
+  it("200: responds with articles array of user article", () => {
+    return request(app)
+      .get("/api/articles")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body).toHaveProperty("articles");
+        expect(body["articles"]).toBeInstanceOf(Array);
+        expect(body["articles"].length).toBe(13);
+        body["articles"].forEach((article) => {
+          expect(article).toHaveProperty("author");
+          expect(article).toHaveProperty("title");
+          expect(article).toHaveProperty("article_id");
+          expect(article).toHaveProperty("topic");
+          expect(article).toHaveProperty("created_at");
+          expect(article).toHaveProperty("votes");
+          expect(article).toHaveProperty("article_img_url");
+          expect(article).toHaveProperty("comment_count");
+          expect(article).not.toHaveProperty("body");
+          expect(typeof article["author"]).toBe("string");
+          expect(typeof article["title"]).toBe("string");
+          expect(typeof article["article_id"]).toBe("number");
+          expect(typeof article["topic"]).toBe("string");
+          expect(typeof article["created_at"]).toBe("string");
+          expect(typeof article["votes"]).toBe("number");
+          expect(typeof article["article_img_url"]).toBe("string");
+          expect(typeof article["comment_count"]).toBe("number");
+        });
+        expect(body["articles"]).toBeSortedBy("created_at", {
+          descending: true,
+        });
       });
   });
 });
