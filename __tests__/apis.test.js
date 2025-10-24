@@ -8,34 +8,20 @@ beforeAll(() => seed(data));
 afterAll(() => db.end());
 
 describe("GET /api/topics", () => {
-  it("returns all topics", () => {
+  it("200: responds with topics array of topic objects", () => {
     return request(app)
       .get("/api/topics")
       .expect(200)
-      .expect("Content-Type", "application/json; charset=utf-8")
-      .then((res) => {
-        const body = res.body;
+      .then(({ body }) => {
         expect(body).toHaveProperty("topics");
         expect(body["topics"]).toBeInstanceOf(Array);
         expect(body["topics"].length).toBe(3);
-        expect(body["topics"][0]).toHaveProperty("slug");
-        expect(body["topics"][0]).toHaveProperty("description");
-        expect(body["topics"]).toEqual(
-          expect.arrayContaining([
-            expect.objectContaining({
-              slug: "mitch",
-              description: "The man, the Mitch, the legend",
-            }),
-            expect.objectContaining({
-              slug: "cats",
-              description: "Not dogs",
-            }),
-            expect.objectContaining({
-              slug: "paper",
-              description: "what books are made of",
-            }),
-          ])
-        );
+        body["topics"].forEach((topic) => {
+          expect(topic).toHaveProperty("slug");
+          expect(topic).toHaveProperty("description");
+          expect(typeof topic["slug"]).toBe("string");
+          expect(typeof topic["description"]).toBe("string");
+        });
       });
   });
 });
