@@ -95,8 +95,9 @@ describe("GET /api/articles", () => {
 
 describe("GET /api/articles/:article_id", () => {
   it("status:200, responds with article object", () => {
+    const articleId = 5;
     return request(app)
-      .get("/api/articles/5")
+      .get(`/api/articles/${articleId}`)
       .expect(200)
       .then(({ body }) => {
         expect(body).toHaveProperty("article");
@@ -118,6 +119,7 @@ describe("GET /api/articles/:article_id", () => {
         expect(typeof article["created_at"]).toBe("string");
         expect(typeof article["votes"]).toBe("number");
         expect(typeof article["article_img_url"]).toBe("string");
+        expect(article["article_id"]).toBe(articleId);
       });
   });
   it("status:404, responds with an error message when passed a valid article_id that does not exist", () => {
@@ -284,6 +286,110 @@ describe("POST /api/articles/:article_id/comments", () => {
       .expect(400)
       .then(({ body }) => {
         expect(body.msg).toBe("Bad Request");
+      });
+  });
+});
+
+describe("PATCH /api/articles/:article_id", () => {
+  const validRequestBody = {
+    inc_votes: 1,
+  };
+  it("status 200, responds with updated article object", () => {
+    const articleId = 1;
+    return request(app)
+      .patch(`/api/articles/${articleId}`)
+      .send(validRequestBody)
+      .expect(200)
+      .then(({ body }) => {
+        expect(body).toHaveProperty("article");
+        const article = body["article"];
+        expect(article).toBeInstanceOf(Object);
+        expect(article).toHaveProperty("author");
+        expect(article).toHaveProperty("title");
+        expect(article).toHaveProperty("article_id");
+        expect(article).toHaveProperty("body");
+        expect(article).toHaveProperty("topic");
+        expect(article).toHaveProperty("created_at");
+        expect(article).toHaveProperty("votes");
+        expect(article).toHaveProperty("article_img_url");
+        expect(typeof article["author"]).toBe("string");
+        expect(typeof article["title"]).toBe("string");
+        expect(typeof article["article_id"]).toBe("number");
+        expect(typeof article["body"]).toBe("string");
+        expect(typeof article["topic"]).toBe("string");
+        expect(typeof article["created_at"]).toBe("string");
+        expect(typeof article["votes"]).toBe("number");
+        expect(typeof article["article_img_url"]).toBe("string");
+        expect(article["article_id"]).toBe(articleId);
+      });
+  });
+  it("status:404, responds with an error message when passed a valid article_id that does not exist", () => {
+    return request(app)
+      .patch("/api/articles/9999")
+      .send(validRequestBody)
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("No article found for article_id: 9999");
+      });
+  });
+  it("status:400, responds with an error message when passed an invalid article_id type", () => {
+    return request(app)
+      .patch("/api/articles/not-an-id")
+      .send(validRequestBody)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad Request");
+      });
+  });
+  it("status:400, responds with an error message if required fields are missing", async () => {
+    const articleId = 12;
+    return request(app)
+      .patch(`/api/articles/${articleId}`)
+      .send({})
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad Request");
+      });
+  });
+  it("status:400, responds with an error message if request body has wrong data types", async () => {
+    const articleId = 1;
+    return request(app)
+      .patch(`/api/articles/${articleId}`)
+      .send({ inc_votes: "1" })
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad Request");
+      });
+  });
+});
+
+describe("DELETE /api/comments/:comment_id", () => {
+  it("status:204, responds with no content", () => {
+    return request(app)
+      .delete("/api/comments/5")
+      .expect(204)
+      .then(({ body }) => {
+        expect(body).toEqual({});
+      });
+  });
+  it("status:404, responds with error message when passed a valid comment_id that does not exist", () => {
+    return request(app)
+      .delete("/api/comments/9999")
+      .expect(404)
+      .then(({ body }) => {
+        expect(body).toHaveProperty("msg");
+        expect(body["msg"]).toBe(
+          "No comment found to delete with comment_id: 9999"
+        );
+      });
+  });
+  it("status:400, responds with error message when passed an invalid comment_id type", () => {
+    return request(app)
+      .delete("/api/comments/not-an-id")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body).toHaveProperty("msg");
+        expect(body["msg"]).toBe("Bad Request");
       });
   });
 });

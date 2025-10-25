@@ -85,7 +85,6 @@ async function checkArticleExistsById(articleId) {
 
 async function addCommentAgainstArticle(articleId, requestBody) {
   const { username, body } = requestBody;
-  console.log(body, typeof body);
   if (typeof body !== "string" || body.length === 0) {
     return Promise.reject({ status: 400, msg: "Bad Request" });
   }
@@ -98,6 +97,9 @@ async function addCommentAgainstArticle(articleId, requestBody) {
 
 function updateArticleUsingId(articleId, requestBody) {
   const { inc_votes } = requestBody;
+  if (typeof inc_votes !== "number") {
+    return Promise.reject({ status: 400, msg: "Bad Request" });
+  }
   return db
     .query(
       `UPDATE articles SET votes = votes + $1 WHERE article_id = $2 RETURNING *`,
