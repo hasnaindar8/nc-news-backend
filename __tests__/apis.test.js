@@ -98,30 +98,89 @@ describe("GET /api/articles", () => {
       .expect(200)
       .then(({ body }) => {
         expect(body).toHaveProperty("articles");
-        expect(body["articles"]).toBeInstanceOf(Array);
-        expect(body["articles"].length).toBe(12);
-        body["articles"].forEach((article) => {
-          expect(article).toHaveProperty("author");
-          expect(article).toHaveProperty("title");
-          expect(article).toHaveProperty("article_id");
-          expect(article).toHaveProperty("topic");
-          expect(article).toHaveProperty("created_at");
-          expect(article).toHaveProperty("votes");
-          expect(article).toHaveProperty("article_img_url");
-          expect(article).toHaveProperty("comment_count");
-          expect(article).not.toHaveProperty("body");
-          expect(typeof article["author"]).toBe("string");
-          expect(typeof article["title"]).toBe("string");
-          expect(typeof article["article_id"]).toBe("number");
-          expect(typeof article["topic"]).toBe("string");
-          expect(typeof article["created_at"]).toBe("string");
-          expect(typeof article["votes"]).toBe("number");
-          expect(typeof article["article_img_url"]).toBe("string");
-          expect(typeof article["comment_count"]).toBe("number");
+        const articles = body["articles"];
+        expect(articles).toBeInstanceOf(Array);
+        expect(articles.length).toBe(12);
+        articles.forEach((article) => {
           expect(article["topic"]).toBe(topic);
         });
-        expect(body["articles"]).toBeSortedBy("created_at", {
+        expect(articles).toBeSortedBy("created_at", {
           descending: true,
+        });
+      });
+  });
+  it("status:200, responds with empty articles array when given topic does not have any related article", () => {
+    const topic = "football";
+    return request(app)
+      .get(`/api/articles?topic=${topic}`)
+      .expect(200)
+      .then(({ body }) => {
+        expect(body).toHaveProperty("articles");
+        const articles = body["articles"];
+        expect(articles).toBeInstanceOf(Array);
+        expect(articles.length).toBe(0);
+      });
+  });
+  it("status:200, responds with articles array sorted by given sort column and orders default descending", () => {
+    const sortColumn = "votes";
+    return request(app)
+      .get(`/api/articles?sort_by=${sortColumn}`)
+      .expect(200)
+      .then(({ body }) => {
+        expect(body).toHaveProperty("articles");
+        const articles = body["articles"];
+        expect(articles).toBeInstanceOf(Array);
+        expect(articles.length).toBe(13);
+        expect(articles).toBeSortedBy(sortColumn, { descending: true });
+      });
+  });
+  it("status:200, responds with articles array sorted by given sort column and order query to ASC / DESC", () => {
+    const sortColumn = "article_id";
+    const order = "asc";
+    return request(app)
+      .get(`/api/articles?sort_by=${sortColumn}&order=${order}`)
+      .expect(200)
+      .then(({ body }) => {
+        expect(body).toHaveProperty("articles");
+        const articles = body["articles"];
+        expect(articles).toBeInstanceOf(Array);
+        expect(articles.length).toBe(13);
+        expect(articles).toBeSortedBy(sortColumn, { ascending: true });
+      });
+  });
+  it("status:400, responds with error message when passed invalid sort_by column", () => {
+    return request(app)
+      .get("/api/articles?sort_by=comment_id")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Invalid sort_by query");
+      });
+  });
+  it("status:400, responds with error message when passed invalid order value", () => {
+    return request(app)
+      .get("/api/articles?order=down")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Invalid order query");
+      });
+  });
+  it("status:200, responds with articles array when passed topic, sort_by and order queries all together", () => {
+    const topic = "mitch";
+    const sortColumn = "article_id";
+    const order = "asc";
+    return request(app)
+      .get(`/api/articles?topic=${topic}&sort_by=${sortColumn}&order=${order}`)
+      .expect(200)
+      .then(({ body }) => {
+        expect(body).toHaveProperty("articles");
+        const articles = body["articles"];
+        expect(articles).toBeInstanceOf(Array);
+        expect(articles.length).toBe(12);
+        articles.forEach((article) => {
+          expect(article["topic"]).toBe(topic);
+        });
+        expect(articles).toBeSortedBy(sortColumn, {
+          ascending: true,
         });
       });
   });
