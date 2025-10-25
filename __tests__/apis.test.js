@@ -59,7 +59,7 @@ describe("GET /api/users", () => {
 });
 
 describe("GET /api/articles", () => {
-  it("status:200, responds with articles array of article object", () => {
+  it("status:200, responds with articles array of article object sorted by date in descending", () => {
     return request(app)
       .get("/api/articles")
       .expect(200)
@@ -85,6 +85,40 @@ describe("GET /api/articles", () => {
           expect(typeof article["votes"]).toBe("number");
           expect(typeof article["article_img_url"]).toBe("string");
           expect(typeof article["comment_count"]).toBe("number");
+        });
+        expect(body["articles"]).toBeSortedBy("created_at", {
+          descending: true,
+        });
+      });
+  });
+  it("status:200, responds with articles array of article object with specific topic sorted by date in descending when passed topic query", () => {
+    const topic = "mitch";
+    return request(app)
+      .get(`/api/articles?topic=${topic}`)
+      .expect(200)
+      .then(({ body }) => {
+        expect(body).toHaveProperty("articles");
+        expect(body["articles"]).toBeInstanceOf(Array);
+        expect(body["articles"].length).toBe(12);
+        body["articles"].forEach((article) => {
+          expect(article).toHaveProperty("author");
+          expect(article).toHaveProperty("title");
+          expect(article).toHaveProperty("article_id");
+          expect(article).toHaveProperty("topic");
+          expect(article).toHaveProperty("created_at");
+          expect(article).toHaveProperty("votes");
+          expect(article).toHaveProperty("article_img_url");
+          expect(article).toHaveProperty("comment_count");
+          expect(article).not.toHaveProperty("body");
+          expect(typeof article["author"]).toBe("string");
+          expect(typeof article["title"]).toBe("string");
+          expect(typeof article["article_id"]).toBe("number");
+          expect(typeof article["topic"]).toBe("string");
+          expect(typeof article["created_at"]).toBe("string");
+          expect(typeof article["votes"]).toBe("number");
+          expect(typeof article["article_img_url"]).toBe("string");
+          expect(typeof article["comment_count"]).toBe("number");
+          expect(article["topic"]).toBe(topic);
         });
         expect(body["articles"]).toBeSortedBy("created_at", {
           descending: true,
