@@ -122,6 +122,20 @@ describe("GET /api/articles/:article_id", () => {
         expect(article["article_id"]).toBe(articleId);
       });
   });
+  it("status:200, responds with article object and additional property comment_count with correct count", () => {
+    const articleId = 5;
+    return request(app)
+      .get(`/api/articles/${articleId}`)
+      .expect(200)
+      .then(({ body }) => {
+        expect(body).toHaveProperty("article");
+        const article = body["article"];
+        expect(article).toBeInstanceOf(Object);
+        expect(article).toHaveProperty("comment_count");
+        expect(typeof article["comment_count"]).toBe("number");
+        expect(article["comment_count"]).toBe(2);
+      });
+  });
   it("status:404, responds with an error message when passed a valid article_id that does not exist", () => {
     return request(app)
       .get("/api/articles/9999")
