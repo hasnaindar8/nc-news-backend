@@ -195,3 +195,95 @@ describe("GET /api/articles/:article_id/comments", () => {
       });
   });
 });
+
+describe("POST /api/articles/:article_id/comments", () => {
+  const validComment = {
+    username: "butter_bridge",
+    body: "This article changed my life.",
+  };
+  it("status:201, responds with an object of posted comment", () => {
+    const articleId = 12;
+    return request(app)
+      .post(`/api/articles/${articleId}/comments`)
+      .send(validComment)
+      .expect(201)
+      .then(({ body }) => {
+        expect(body).toHaveProperty("comment");
+        const comment = body["comment"];
+        expect(comment).toBeInstanceOf(Object);
+        expect(comment).toHaveProperty("comment_id");
+        expect(comment).toHaveProperty("article_id");
+        expect(comment).toHaveProperty("body");
+        expect(comment).toHaveProperty("votes");
+        expect(comment).toHaveProperty("author");
+        expect(comment).toHaveProperty("created_at");
+        expect(typeof comment["comment_id"]).toBe("number");
+        expect(typeof comment["article_id"]).toBe("number");
+        expect(typeof comment["body"]).toBe("string");
+        expect(typeof comment["votes"]).toBe("number");
+        expect(typeof comment["author"]).toBe("string");
+        expect(typeof comment["created_at"]).toBe("string");
+        expect(comment["article_id"]).toBe(articleId);
+        expect(comment["author"]).toBe(validComment.username);
+        expect(comment["body"]).toBe(validComment.body);
+      });
+  });
+  it("status:404, responds with an error message when passed a valid article_id that does not exist", () => {
+    return request(app)
+      .post("/api/articles/9999/comments")
+      .send(validComment)
+      .expect(409)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Referenced record does not exist");
+      });
+  });
+  it("status:404, responds with an error message when passed username does not exist", () => {
+    const articleId = 12;
+    return request(app)
+      .post(`/api/articles/${articleId}/comments`)
+      .send({ username: "mystery", body: "This article changed my life." })
+      .expect(409)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Referenced record does not exist");
+      });
+  });
+  it("status:400, responds with an error message when passed an invalid article_id type", () => {
+    return request(app)
+      .post("/api/articles/not-an-id/comments")
+      .send(validComment)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad Request");
+      });
+  });
+  it("status:400, responds with an error message if required fields are missing", async () => {
+    const articleId = 12;
+    return request(app)
+      .post(`/api/articles/${articleId}/comments`)
+      .send({ username: "butter_bridge" })
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad Request");
+      });
+  });
+  it("status:400, responds with an error message if request body has wrong data types", async () => {
+    const articleId = 12;
+    return request(app)
+      .post(`/api/articles/${articleId}/comments`)
+      .send({ username: "butter_bridge", body: {} })
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad Request");
+      });
+  });
+  it("status:400, responds with an error message if empty string in comment body", async () => {
+    const articleId = 12;
+    return request(app)
+      .post(`/api/articles/${articleId}/comments`)
+      .send({ username: "butter_bridge", body: "" })
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad Request");
+      });
+  });
+});

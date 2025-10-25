@@ -85,6 +85,10 @@ async function checkArticleExistsById(articleId) {
 
 async function addCommentAgainstArticle(articleId, requestBody) {
   const { username, body } = requestBody;
+  console.log(body, typeof body);
+  if (typeof body !== "string" || body.length === 0) {
+    return Promise.reject({ status: 400, msg: "Bad Request" });
+  }
   const { rows } = await db.query(
     `INSERT INTO comments(body, article_id, author, votes, created_at) VALUES ($1, $2, $3, $4, CURRENT_TIMESTAMP) RETURNING *`,
     [body, articleId, username, 0]
