@@ -7,9 +7,20 @@ const {
   checkArticleExistsById,
 } = require("../models/articlesModel.js");
 
+const { checkTopicExists } = require("../models/topicsModel.js");
+
 async function getArticles(req, res) {
   const queries = req.query;
   const articles = await getAllArticles(queries);
+  if (articles.length === 0 && queries.topic) {
+    const topicExists = await checkTopicExists(queries.topic);
+    if (!topicExists) {
+      return Promise.reject({
+        status: 404,
+        msg: `No topic found for topic: ${queries.topic}`,
+      });
+    }
+  }
   res.status(200).send({ articles });
 }
 

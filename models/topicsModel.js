@@ -7,4 +7,11 @@ async function getAllTopics() {
   return topics;
 }
 
-module.exports = { getAllTopics };
+async function checkTopicExists(topic) {
+  const { rows } = await db.query(`SELECT * FROM topics WHERE slug = $1`, [
+    topic,
+  ]);
+  return rows.length > 0;
+}
+
+module.exports = { getAllTopics, checkTopicExists };

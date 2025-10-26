@@ -109,8 +109,16 @@ describe("GET /api/articles", () => {
         });
       });
   });
+  it("status:404, responds with error message when passed topic does not exist", () => {
+    return request(app)
+      .get("/api/articles?topic=nonexistenttopic")
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("No topic found for topic: nonexistenttopic");
+      });
+  });
   it("status:200, responds with empty articles array when given topic does not have any related article", () => {
-    const topic = "football";
+    const topic = "paper";
     return request(app)
       .get(`/api/articles?topic=${topic}`)
       .expect(200)
