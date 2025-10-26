@@ -373,7 +373,7 @@ describe("POST /api/articles/:article_id/comments", () => {
         expect(body.msg).toBe("Bad Request");
       });
   });
-  it("status:400, responds with an error message if required fields are missing", async () => {
+  it("status:400, responds with an error message if required fields are missing", () => {
     const articleId = 12;
     return request(app)
       .post(`/api/articles/${articleId}/comments`)
@@ -383,7 +383,7 @@ describe("POST /api/articles/:article_id/comments", () => {
         expect(body.msg).toBe("Bad Request");
       });
   });
-  it("status:400, responds with an error message if request body has wrong data types", async () => {
+  it("status:400, responds with an error message if request body has wrong data types", () => {
     const articleId = 12;
     return request(app)
       .post(`/api/articles/${articleId}/comments`)
@@ -393,7 +393,7 @@ describe("POST /api/articles/:article_id/comments", () => {
         expect(body.msg).toBe("Bad Request");
       });
   });
-  it("status:400, responds with an error message if empty string in comment body", async () => {
+  it("status:400, responds with an error message if empty string in comment body", () => {
     const articleId = 12;
     return request(app)
       .post(`/api/articles/${articleId}/comments`)
@@ -456,7 +456,7 @@ describe("PATCH /api/articles/:article_id", () => {
         expect(body.msg).toBe("Bad Request");
       });
   });
-  it("status:400, responds with an error message if required fields are missing", async () => {
+  it("status:400, responds with an error message if required fields are missing", () => {
     const articleId = 12;
     return request(app)
       .patch(`/api/articles/${articleId}`)
@@ -466,7 +466,7 @@ describe("PATCH /api/articles/:article_id", () => {
         expect(body.msg).toBe("Bad Request");
       });
   });
-  it("status:400, responds with an error message if request body has wrong data types", async () => {
+  it("status:400, responds with an error message if request body has wrong data types", () => {
     const articleId = 1;
     return request(app)
       .patch(`/api/articles/${articleId}`)
@@ -505,6 +505,36 @@ describe("DELETE /api/comments/:comment_id", () => {
       .then(({ body }) => {
         expect(body).toHaveProperty("msg");
         expect(body["msg"]).toBe("Bad Request");
+      });
+  });
+});
+
+describe("GET /api/users/:username", () => {
+  it("status:200, responds with user object when passed valid username", () => {
+    const username = "rogersop";
+    return request(app)
+      .get(`/api/users/${username}`)
+      .expect(200)
+      .then(({ body }) => {
+        expect(body).toHaveProperty("user");
+        const user = body["user"];
+        expect(user).toBeInstanceOf(Object);
+        expect(user).toHaveProperty("username");
+        expect(user).toHaveProperty("name");
+        expect(user).toHaveProperty("avatar_url");
+        expect(typeof user["username"]).toBe("string");
+        expect(typeof user["name"]).toBe("string");
+        expect(typeof user["avatar_url"]).toBe("string");
+      });
+  });
+  it("status:404, responds with error message when passed a valid username that does not exist", () => {
+    const username = "jessjelly";
+    return request(app)
+      .get(`/api/users/${username}`)
+      .expect(404)
+      .then(({ body }) => {
+        expect(body).toHaveProperty("msg");
+        expect(body["msg"]).toBe("No user found for username: jessjelly");
       });
   });
 });
