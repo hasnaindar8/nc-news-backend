@@ -6,7 +6,10 @@ const {
   addCommentForArticle,
   updateArticle,
 } = require("./controllers/articlesController.js");
-const { getUsers } = require("./controllers/usersController.js");
+const {
+  getUsers,
+  getUserByUsername,
+} = require("./controllers/usersController.js");
 const {
   handleCustomErrors,
   handlePsqlErrors,
@@ -37,6 +40,8 @@ app.post("/api/articles/:article_id/comments", addCommentForArticle);
 app.patch("/api/articles/:article_id", updateArticle);
 
 app.delete("/api/comments/:comment_id", deleteComment);
+
+app.get("/api/users/:username", getUserByUsername);
 
 app.use((req, res) => {
   res.status(404).send({ msg: "Path not found" });
