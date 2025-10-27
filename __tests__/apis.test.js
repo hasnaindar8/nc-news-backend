@@ -250,7 +250,7 @@ describe("GET /api/articles/:article_id", () => {
       .get("/api/articles/not-an-id")
       .expect(400)
       .then(({ body }) => {
-        expect(body.msg).toBe("Bad Request");
+        expect(body.msg).toBe("Invalid input syntax");
       });
   });
 });
@@ -308,7 +308,7 @@ describe("GET /api/articles/:article_id/comments", () => {
       .get("/api/articles/not-an-id/comments")
       .expect(400)
       .then(({ body }) => {
-        expect(body.msg).toBe("Bad Request");
+        expect(body.msg).toBe("Invalid input syntax");
       });
   });
 });
@@ -370,7 +370,7 @@ describe("POST /api/articles/:article_id/comments", () => {
       .send(validComment)
       .expect(400)
       .then(({ body }) => {
-        expect(body.msg).toBe("Bad Request");
+        expect(body.msg).toBe("Invalid input syntax");
       });
   });
   it("status:400, responds with an error message if required fields are missing", () => {
@@ -453,7 +453,7 @@ describe("PATCH /api/articles/:article_id", () => {
       .send(validRequestBody)
       .expect(400)
       .then(({ body }) => {
-        expect(body.msg).toBe("Bad Request");
+        expect(body.msg).toBe("Invalid input syntax");
       });
   });
   it("status:400, responds with an error message if required fields are missing", () => {
@@ -504,7 +504,7 @@ describe("DELETE /api/comments/:comment_id", () => {
       .expect(400)
       .then(({ body }) => {
         expect(body).toHaveProperty("msg");
-        expect(body["msg"]).toBe("Bad Request");
+        expect(body["msg"]).toBe("Invalid input syntax");
       });
   });
 });
@@ -583,7 +583,7 @@ describe("PATCH /api/comments/:comment_id", () => {
       .send(validRequestBody)
       .expect(400)
       .then(({ body }) => {
-        expect(body.msg).toBe("Bad Request");
+        expect(body.msg).toBe("Invalid input syntax");
       });
   });
   it("status:400, responds with an error message if required fields are missing", () => {
@@ -601,6 +601,117 @@ describe("PATCH /api/comments/:comment_id", () => {
     return request(app)
       .patch(`/api/articles/${commentId}`)
       .send({ inc_votes: "one" })
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad Request");
+      });
+  });
+});
+
+describe("POST /api/articles", () => {
+  it("status:201, responds with an object of new added article with comment_count", () => {
+    const validArticle = {
+      author: "butter_bridge",
+      title: "A new article title",
+      body: "This is the body of the new article",
+      topic: "mitch",
+      article_img_url: "https://example.com/image.jpg",
+    };
+    return request(app)
+      .post("/api/articles")
+      .send(validArticle)
+      .expect(201)
+      .then(({ body }) => {
+        expect(body).toHaveProperty("article");
+        const article = body["article"];
+        expect(article).toBeInstanceOf(Object);
+        expect(article).toEqual({
+          article_id: expect.any(Number),
+          author: validArticle.author,
+          title: validArticle.title,
+          body: validArticle.body,
+          topic: validArticle.topic,
+          article_img_url: validArticle.article_img_url,
+          votes: 0,
+          created_at: expect.any(String),
+          comment_count: 0,
+        });
+      });
+  });
+  it("status:201, should use default article_img_url if not provided", () => {
+    const validArticle = {
+      author: "butter_bridge",
+      title: "A new article title",
+      body: "This is the body of the new article",
+      topic: "mitch",
+    };
+    return request(app)
+      .post("/api/articles")
+      .send(validArticle)
+      .expect(201)
+      .then(({ body }) => {
+        expect(body).toHaveProperty("article");
+        const article = body["article"];
+        expect(article).toBeInstanceOf(Object);
+        expect(article.article_img_url).toBe(
+          "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700"
+        );
+      });
+  });
+  it("status:400, responds with an error message if required field is missing", () => {
+    const incompleteArticle = {
+      author: "butter_bridge",
+      title: "Missing body and topic",
+    };
+    return request(app)
+      .post("/api/articles")
+      .send(incompleteArticle)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad Request");
+      });
+  });
+  it("status:400, responds with an error message if author does not exist", () => {
+    const invalidAuthorArticle = {
+      author: "nonexistent_user",
+      title: "A new article title",
+      body: "Body content",
+      topic: "mitch",
+    };
+    return request(app)
+      .post("/api/articles")
+      .send(invalidAuthorArticle)
+      .expect(409)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Referenced record does not exist");
+      });
+  });
+  it("status:400, responds with an error message if author does not exist", () => {
+    const invalidTopicArticle = {
+      author: "nonexistent_user",
+      title: "A new article title",
+      body: "Body content",
+      topic: "nonexistent_topic",
+    };
+    return request(app)
+      .post("/api/articles")
+      .send(invalidTopicArticle)
+      .expect(409)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Referenced record does not exist");
+      });
+  });
+  it("status:400, responds with an error message if fields have wrong data type", () => {
+    const badTypeArticle = {
+      author: 123,
+      title: true,
+      body: [],
+      topic: {},
+      article_img_url: 456,
+    };
+    return request(app)
+      .post("/api/articles")
+      .send(badTypeArticle)
       .expect(400)
       .then(({ body }) => {
         expect(body.msg).toBe("Bad Request");
