@@ -5,6 +5,7 @@ const {
   addCommentAgainstArticle,
   updateArticleUsingId,
   checkArticleExistsById,
+  insertArticle,
 } = require("../models/articles.model.js");
 
 const { checkTopicExists } = require("../models/topics.model.js");
@@ -51,10 +52,17 @@ async function updateArticle(req, res) {
   res.status(200).send({ article });
 }
 
+async function addArticle(req, res) {
+  const requestBody = req.body;
+  const article = await insertArticle(requestBody);
+  res.status(201).send({ article });
+}
+
 module.exports = {
   getArticles,
   getArticleById,
   getCommentsByArticleId,
   addCommentForArticle,
   updateArticle,
+  addArticle,
 };

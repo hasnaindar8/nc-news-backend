@@ -116,6 +116,29 @@ function updateArticleUsingId(articleId, requestBody) {
     });
 }
 
+async function insertArticle(requestBody) {
+  const {
+    title,
+    author,
+    body,
+    topic,
+    article_img_url = "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+  } = requestBody;
+  if (
+    typeof body !== "string" ||
+    body.length === 0 ||
+    typeof title !== "string" ||
+    title.length === 0
+  ) {
+    return Promise.reject({ status: 400, msg: "Bad Request" });
+  }
+  const { rows } = await db.query(
+    `INSERT INTO articles(title, topic, author, body, created_at, votes, article_img_url) VALUES ($1, $2, $3, $4, CURRENT_TIMESTAMP, 0, $5) RETURNING article_id, title, topic, author, body, created_at, votes, article_img_url`,
+    [title, topic, author, body, article_img_url]
+  );
+  return { ...rows[0], comment_count: 0 };
+}
+
 module.exports = {
   getAllArticles,
   getArticleUsingId,
@@ -123,4 +146,5 @@ module.exports = {
   addCommentAgainstArticle,
   updateArticleUsingId,
   checkArticleExistsById,
+  insertArticle,
 };
