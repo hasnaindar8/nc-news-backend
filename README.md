@@ -18,6 +18,7 @@ NC News is a fully tested RESTful backend service that provides programmatic acc
 - Creating and deleting comments  
 - Updating article vote totals  
 - Fetching user data  
+- Updating comment vote totals
 
 ## Tech Stack
 
@@ -102,7 +103,7 @@ npm run start
 Server should be running at:
 
 ```
-http://localhost:8080/getHealth
+http://localhost:8080/api
 ```
 ---
 
