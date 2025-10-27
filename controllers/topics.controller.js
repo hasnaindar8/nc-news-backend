@@ -1,4 +1,4 @@
-const { getAllTopics } = require("../models/topicsModel.js");
+const { getAllTopics } = require("../models/topics.model.js");
 
 async function getTopics(req, res) {
   const topics = await getAllTopics();

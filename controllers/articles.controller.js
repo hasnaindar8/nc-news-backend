@@ -5,9 +5,9 @@ const {
   addCommentAgainstArticle,
   updateArticleUsingId,
   checkArticleExistsById,
-} = require("../models/articlesModel.js");
+} = require("../models/articles.model.js");
 
-const { checkTopicExists } = require("../models/topicsModel.js");
+const { checkTopicExists } = require("../models/topics.model.js");
 
 async function getArticles(req, res) {
   const queries = req.query;

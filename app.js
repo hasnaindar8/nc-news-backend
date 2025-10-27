@@ -1,21 +1,21 @@
-const { getTopics } = require("./controllers/topicsController.js");
+const { getTopics } = require("./controllers/topics.controller.js");
 const {
   getArticles,
   getArticleById,
   getCommentsByArticleId,
   addCommentForArticle,
   updateArticle,
-} = require("./controllers/articlesController.js");
+} = require("./controllers/articles.controller.js");
 const {
   getUsers,
   getUserByUsername,
-} = require("./controllers/usersController.js");
+} = require("./controllers/users.controller.js");
 const {
-  handleCustomErrors,
-  handlePsqlErrors,
-  handleServerErrors,
-} = require("./controllers/errorHandlerController.js");
-const { deleteComment } = require("./controllers/commentsController.js");
+  customErrorHandler,
+  psqlErrorHandler,
+  serverErrorHandler,
+} = require("./middleware/errorHandler.js");
+const { deleteComment } = require("./controllers/comments.controller.js");
 const express = require("express");
 const app = express();
 
@@ -47,10 +47,10 @@ app.use((req, res) => {
   res.status(404).send({ msg: "Path not found" });
 });
 
-app.use(handleCustomErrors);
+app.use(customErrorHandler);
 
-app.use(handlePsqlErrors);
+app.use(psqlErrorHandler);
 
-app.use(handleServerErrors);
+app.use(serverErrorHandler);
 
 module.exports = app;

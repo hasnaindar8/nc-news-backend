@@ -1,7 +1,7 @@
 const {
   fetchAllUsers,
   fetchUserByUsername,
-} = require("../models/usersModel.js");
+} = require("../models/users.model.js");
 
 async function getUsers(req, res) {
   const users = await fetchAllUsers();
