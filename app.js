@@ -1,51 +1,28 @@
-const { getTopics } = require("./controllers/topics.controller.js");
-const {
-  getArticles,
-  getArticleById,
-  getCommentsByArticleId,
-  addCommentForArticle,
-  updateArticle,
-} = require("./controllers/articles.controller.js");
-const {
-  getUsers,
-  getUserByUsername,
-} = require("./controllers/users.controller.js");
+const topicsRouter = require("./routers/topics-router.js");
+const articlesRouter = require("./routers/articles-router.js");
+const usersRouter = require("./routers/users-router.js");
+const commentsRouter = require("./routers/comments-router.js");
 const {
   customErrorHandler,
   psqlErrorHandler,
   serverErrorHandler,
 } = require("./middleware/errorHandler.js");
-const { deleteComment } = require("./controllers/comments.controller.js");
+const { notFoundHandler } = require("./middleware/notFoundHandler.js");
+
 const express = require("express");
 const app = express();
 
 app.use(express.json());
 
-app.get("/getHealth", (req, res) => {
-  res.status(200).send({ health: "Server is up and running" });
-});
+app.use("/api/topics", topicsRouter);
 
-app.get("/api/topics", getTopics);
+app.use("/api/articles", articlesRouter);
 
-app.get("/api/articles", getArticles);
+app.use("/api/users", usersRouter);
 
-app.get("/api/users", getUsers);
+app.use("/api/comments", commentsRouter);
 
-app.get("/api/articles/:article_id", getArticleById);
-
-app.get("/api/articles/:article_id/comments", getCommentsByArticleId);
-
-app.post("/api/articles/:article_id/comments", addCommentForArticle);
-
-app.patch("/api/articles/:article_id", updateArticle);
-
-app.delete("/api/comments/:comment_id", deleteComment);
-
-app.get("/api/users/:username", getUserByUsername);
-
-app.use((req, res) => {
-  res.status(404).send({ msg: "Path not found" });
-});
+app.use(notFoundHandler);
 
 app.use(customErrorHandler);
 
