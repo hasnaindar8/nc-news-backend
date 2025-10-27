@@ -538,3 +538,72 @@ describe("GET /api/users/:username", () => {
       });
   });
 });
+
+describe("PATCH /api/comments/:comment_id", () => {
+  const validRequestBody = {
+    inc_votes: 1,
+  };
+  it("status 200, responds with updated comment object", () => {
+    const commentId = 1;
+    return request(app)
+      .patch(`/api/comments/${commentId}`)
+      .send(validRequestBody)
+      .expect(200)
+      .then(({ body }) => {
+        expect(body).toHaveProperty("comment");
+        const comment = body["comment"];
+        expect(comment).toBeInstanceOf(Object);
+        expect(comment).toHaveProperty("comment_id");
+        expect(comment).toHaveProperty("article_id");
+        expect(comment).toHaveProperty("body");
+        expect(comment).toHaveProperty("votes");
+        expect(comment).toHaveProperty("author");
+        expect(comment).toHaveProperty("created_at");
+        expect(typeof comment["comment_id"]).toBe("number");
+        expect(typeof comment["article_id"]).toBe("number");
+        expect(typeof comment["body"]).toBe("string");
+        expect(typeof comment["votes"]).toBe("number");
+        expect(typeof comment["author"]).toBe("string");
+        expect(typeof comment["created_at"]).toBe("string");
+        expect(comment["comment_id"]).toBe(commentId);
+      });
+  });
+  it("status:404, responds with an error message when passed a valid comment_id that does not exist", () => {
+    return request(app)
+      .patch("/api/comments/9999")
+      .send(validRequestBody)
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("No comment found for comment_id: 9999");
+      });
+  });
+  it("status:400, responds with an error message when passed an invalid comment_id type", () => {
+    return request(app)
+      .patch("/api/comments/not-an-id")
+      .send(validRequestBody)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad Request");
+      });
+  });
+  it("status:400, responds with an error message if required fields are missing", () => {
+    const commentId = 12;
+    return request(app)
+      .patch(`/api/comments/${commentId}`)
+      .send({})
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad Request");
+      });
+  });
+  it("status:400, responds with an error message if request body has wrong data types", () => {
+    const commentId = 1;
+    return request(app)
+      .patch(`/api/articles/${commentId}`)
+      .send({ inc_votes: "one" })
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad Request");
+      });
+  });
+});
