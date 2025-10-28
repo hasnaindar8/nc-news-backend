@@ -12,6 +12,10 @@ const { notFoundHandler } = require("./middleware/notFoundHandler.js");
 const express = require("express");
 const app = express();
 
+app.use(express.static(`${__dirname}/public`));
+
+app.use("/api", express.static(`${__dirname}/public/index.html`));
+
 app.use(express.json());
 
 app.use("/api/topics", topicsRouter);
