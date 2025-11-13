@@ -28,7 +28,7 @@ async function getAllArticles(queries) {
     values.push(topic);
   }
 
-  query += ` GROUP BY a.article_id ORDER BY a.${sort_by} ${order};`;
+  query += ` GROUP BY a.article_id ORDER BY ${sort_by} ${order};`;
   const { rows: articles } = await db.query(query, values);
   return articles;
 }

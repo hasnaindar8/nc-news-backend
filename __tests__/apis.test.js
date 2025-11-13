@@ -130,7 +130,7 @@ describe("GET /api/articles", () => {
       });
   });
   it("status:200, responds with articles array sorted by given sort column and orders default descending", () => {
-    const sortColumn = "votes";
+    const sortColumn = "comment_count";
     return request(app)
       .get(`/api/articles?sort_by=${sortColumn}`)
       .expect(200)
