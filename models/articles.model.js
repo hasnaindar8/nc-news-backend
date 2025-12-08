@@ -61,7 +61,7 @@ async function getArticleUsingId(articleId) {
 function getCommentsUsingArticleId(articleId) {
   return db
     .query(
-      `SELECT * FROM comments WHERE article_id = $1 ORDER BY created_at DESC`,
+      `SELECT * FROM comments AS c WHERE c.article_id = $1 ORDER BY c.created_at DESC`,
       [articleId]
     )
     .then(({ rows }) => {
@@ -71,7 +71,7 @@ function getCommentsUsingArticleId(articleId) {
 
 async function checkArticleExistsById(articleId) {
   const { rows } = await db.query(
-    `SELECT article_id FROM articles WHERE article_id = $1`,
+    `SELECT a.article_id FROM articles a WHERE a.article_id = $1`,
     [articleId]
   );
   if (rows.length === 0) {

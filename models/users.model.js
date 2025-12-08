@@ -1,12 +1,12 @@
 const db = require("../db/connection.js");
 
 async function fetchAllUsers() {
-  const { rows: users } = await db.query("SELECT * FROM users;");
+  const { rows: users } = await db.query("SELECT u.* FROM users AS u;");
   return users;
 }
 
 async function fetchUserByUsername(username) {
-  const { rows } = await db.query("SELECT * FROM users WHERE username = $1;", [
+  const { rows } = await db.query("SELECT u.* FROM users AS u WHERE u.username = $1;", [
     username,
   ]);
   if (rows.length === 0) {
